@@ -41,7 +41,7 @@ Last.FM scrobble functionality. To use Discord Game update
 functionality, you will also have to follow the on-screen instructions
 to retrieve the token.
 
-2. To add a plugin, click on the desired plugin in the `plugins folder 
+2. To add a plugin, click on the desired plugin in the `plugins` folder 
 and then right-click the `Raw` button on the right. Save this file
 anywhere.
 
