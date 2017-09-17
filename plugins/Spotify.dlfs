@@ -1,0 +1,8 @@
+{
+      "process": "Spotify.exe",
+      "regex": {
+            "pattern": "(.*?) - (.*)",
+            "artistGroup": 1,
+            "titleGroup": 2
+      }
+}

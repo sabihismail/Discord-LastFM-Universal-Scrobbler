@@ -1,0 +1,8 @@
+{
+      "process": "osu!.exe",
+      "regex": {
+            "pattern": "osu!  - (.*?) - (.*) +(?:\\[.*\\])",
+            "artistGroup": 1,
+            "titleGroup": 2
+      }
+}
