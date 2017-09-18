@@ -142,16 +142,19 @@ public class PluginManager {
      * @return Returns list of current active processes.
      */
     private List<CMDProcess> getProcessList() {
-        String[] tasklistCommands = {System.getenv("windir").replace("\\", "/") + "/system32/" + "tasklist.exe",
+        String[] commands = {System.getenv("windir").replace("\\", "/") + "/system32/" + "tasklist.exe",
                 "/v", "/fo", "CSV", "/fi", "\"SESSIONNAME eq Console\"", "/fi", "\"STATUS eq RUNNING\""};
 
         List<CMDProcess> processes = new ArrayList<>();
-        try {
-            Process process = Runtime.getRuntime().exec(tasklistCommands);
-            BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
 
-            while ((line = processReader.readLine()) != null) {
+        try {
+            Process process = Runtime.getRuntime().exec(commands);
+            BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream(), "Cp850"));
+
+            String line;
+            while ((line = r.readLine()) != null) {
+                line = new String(line.getBytes(), "UTF-8");
+
                 if (!line.endsWith("\"N/A\"") && !line.endsWith("\"Window Title\"")) {
                     CMDProcess cmdProcess = new CMDProcess(line);
 
@@ -165,10 +168,9 @@ public class PluginManager {
                     processes.add(cmdProcess);
                 }
             }
-
-            processReader.close();
+            r.close();
         } catch (IOException e) {
-            Logging.logError(tasklistCommands, e);
+            e.printStackTrace();
         }
 
         return processes;
