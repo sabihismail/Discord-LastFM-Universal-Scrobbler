@@ -59,6 +59,7 @@ anywhere.
 * Experiment with JNA to get active windows rather than using CMD's `tasklist`
 * Allow for custom song format to be created by user
 * Add more general logging methods
+* Submit more data to Last.FM
 
 ## Built With
 * [Maven](https://maven.apache.org/) - Dependency Management
