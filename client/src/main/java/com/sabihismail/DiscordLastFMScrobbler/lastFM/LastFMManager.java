@@ -1,7 +1,10 @@
-package com.arkazeen.DiscordLastFMScrobbler.lastFM;
+package com.sabihismail.DiscordLastFMScrobbler.lastFM;
 
-import com.arkazeen.DiscordLastFMScrobbler.connection.Main;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.connection.Main;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.discord.Discord;
+import com.sabihismail.DiscordLastFMScrobbler.discord.DiscordSocket;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Settings;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -13,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class is dedicated to managing information being sent to Last.FM using the {@link LastFM} class. This class also
- * constantly updates the {@link com.arkazeen.DiscordLastFMScrobbler.discord.Discord} Game status.
+ * constantly updates the {@link Discord} Game status.
  *
  * @since 1.0
  */
@@ -56,15 +59,9 @@ public class LastFMManager {
      * @param length The length of the song in seconds (0 if unknown).
      */
     public void processInformation(String artist, String title, int length) {
-        if (songUpdatedAlready) {
-            return;
-        } else {
-            songUpdatedAlready = true;
-        }
+        LastFM.Track track = LastFM.getTrackInformation(artist, title);
 
         if (length == 0) {
-            LastFM.Track track = LastFM.getTrackInformation(artist, title);
-
             if (track != null) {
                 length = (int) TimeUnit.MILLISECONDS.toSeconds(track.getLength());
             }
@@ -81,7 +78,7 @@ public class LastFMManager {
                 }
 
                 try {
-                    LastFM.scrobble(artist, title, timeStart, Main.SETTINGS.getSessionKey());
+                    LastFM.scrobble(artist, title, track != null ? track.getAlbum() : "", timeStart, Main.SETTINGS.getSessionKey());
 
                     Logging.log(artist + " - " + title + " scrobbled.");
                 } catch (IOException e) {
@@ -91,30 +88,42 @@ public class LastFMManager {
                 scrobbled = true;
             }
         } else {
-            this.artist = artist;
-            this.title = title;
-            this.length = length;
+            boolean nowPlayingUpdated = LastFM.updateNowPlaying(artist, title, Main.SETTINGS.getSessionKey());
 
-            scrobbled = false;
+            if (nowPlayingUpdated) {
+                this.artist = artist;
+                this.title = title;
+                this.length = length;
 
-            timeStart = (int) (System.currentTimeMillis() / 1000);
+                scrobbled = false;
 
-            try {
-                LastFM.updateNowPlaying(artist, title, Main.SETTINGS.getSessionKey());
-            } catch (IOException e) {
-                Logging.logError(new String[]{artist, title, Integer.toString(length)}, e);
+                timeStart = (int) (System.currentTimeMillis() / 1000);
             }
         }
     }
 
     /**
      * Queries latest song information from LastFM and sets Discord Game status to that song if
-     * {@link com.arkazeen.DiscordLastFMScrobbler.tools.Settings#discordConnectionEnabled} is true.
+     * {@link Settings#discordConnectionEnabled} is true.
+     *
+     * If {@link Settings#discordConnectionEnabled} is true, the song label
+     * GUI text is set to whatever is read from Discord. If it is not true, the song is set to the Last.FM formatted
+     * track.
+     *
+     * Also checks if the {@link DiscordSocket} has disconnected and
+     * initiates reconnection if it has.
      */
     private void enableNowPlayingUpdate() {
         executorService.scheduleAtFixedRate(() -> {
+            String latestSong = LastFM.getFormattedTrack(Main.SETTINGS.getLastFMName());
+            if (latestSong == null) {
+                return;
+            }
+
             if (Main.SETTINGS.isDiscordConnectionEnabled()) {
-                String latestSong = LastFM.getFormattedTrack(Main.SETTINGS.getLastFMName());
+                if (Main.DISCORD.getDiscordSocket().isClosed()) {
+                    Main.DISCORD.createSocket();
+                }
 
                 String currentSong = Main.DISCORD.getDiscordSocket().getGame();
 
@@ -123,6 +132,8 @@ public class LastFMManager {
 
                     Platform.runLater(() -> song.set(Main.DISCORD.getDiscordSocket().getGame()));
                 }
+            } else {
+                Platform.runLater(() -> song.set(latestSong));
             }
         }, 0, TIME_TO_UPDATE_DISCORD, TimeUnit.SECONDS);
     }
@@ -133,6 +144,10 @@ public class LastFMManager {
 
     public StringProperty getSong() {
         return song;
+    }
+
+    public boolean isSongUpdatedAlready() {
+        return songUpdatedAlready;
     }
 
     public void resetActiveProcess() {

@@ -1,4 +1,4 @@
-package com.arkazeen.DiscordLastFMScrobbler.tools;
+package com.sabihismail.DiscordLastFMScrobbler.tools;
 
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.http.HttpResponse;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 
 /**
@@ -38,10 +39,9 @@ public class Tools {
         try {
             HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
 
-            response = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+            response = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
             EntityUtils.consume(httpResponse.getEntity());
-        } catch (IOException e) {
-            Logging.logError(new String[]{url}, e);
+        } catch (IOException ignored) {
         }
 
         return response;

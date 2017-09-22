@@ -14,7 +14,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.arkazeen.DiscordLastFMScrobbler.connection.Main</mainClass>
+                            <mainClass>com.sabihismail.DiscordLastFMScrobbler.connection.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

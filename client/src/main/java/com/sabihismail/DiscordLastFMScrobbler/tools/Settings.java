@@ -1,6 +1,6 @@
-package com.arkazeen.DiscordLastFMScrobbler.tools;
+package com.sabihismail.DiscordLastFMScrobbler.tools;
 
-import com.arkazeen.DiscordLastFMScrobbler.listener.Plugin;
+import com.sabihismail.DiscordLastFMScrobbler.listener.Plugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

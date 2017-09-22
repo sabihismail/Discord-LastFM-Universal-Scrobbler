@@ -1,10 +1,11 @@
-package com.arkazeen.DiscordLastFMScrobbler.listener;
+package com.sabihismail.DiscordLastFMScrobbler.listener;
 
-import com.arkazeen.DiscordLastFMScrobbler.connection.Main;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Constants;
-import com.arkazeen.DiscordLastFMScrobbler.tools.GUITools;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Logging;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Tools;
+import com.sabihismail.DiscordLastFMScrobbler.connection.Main;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Constants;
+import com.sabihismail.DiscordLastFMScrobbler.tools.GUITools;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Tools;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Settings;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -87,7 +88,7 @@ public class PluginManager {
      * functionality.
      * <p>
      * If plugins exist, they will automatically be loaded into {@link #disabledPlugins} and all active plugins denoted
-     * by {@link com.arkazeen.DiscordLastFMScrobbler.tools.Settings#enabledPlugins} will be added to
+     * by {@link Settings#enabledPlugins} will be added to
      * {@link #enabledPlugins} (in the same order as that list) and removed from {@link #disabledPlugins}.
      */
     private void retrieveAllPlugins() {
@@ -188,33 +189,37 @@ public class PluginManager {
     private void processCheck() {
         Main.LAST_FM_MANAGER.resetActiveProcess();
 
-        pluginLoop:
         for (Plugin plugin : enabledPlugins) {
-            for (CMDProcess process : cmdProcesses) {
-                if (plugin.getProcessName().equalsIgnoreCase(process.getProcessName())) {
-                    Pattern pattern = Pattern.compile(plugin.getRegex());
-                    Matcher matcher = pattern.matcher(process.getWindowTitle());
+            Optional<CMDProcess> cmdProcess = cmdProcesses.stream()
+                    .filter(process -> process.getProcessName().equals(plugin.getProcessName()))
+                    .findFirst();
 
-                    if (matcher.find()) {
-                        plugin.setActive(true);
+            if (cmdProcess.isPresent()) {
+                Pattern pattern = Pattern.compile(plugin.getRegex());
+                Matcher matcher = pattern.matcher(cmdProcess.get().getWindowTitle());
 
-                        String artist = matcher.group(plugin.getArtistGroup());
-                        String title = matcher.group(plugin.getTitleGroup());
-                        int length = 0;
+                if (matcher.find()) {
+                    plugin.setActive(true);
 
-                        Main.LAST_FM_MANAGER.processInformation(artist, title, length);
+                    String artist = matcher.group(plugin.getArtistGroup());
+                    String title = matcher.group(plugin.getTitleGroup());
+                    int length = 0;
 
-                        plugin.setArtist(artist);
-                        plugin.setTitle(title);
+                    Main.LAST_FM_MANAGER.processInformation(artist, title, length);
 
-                        continue pluginLoop;
-                    } else {
-                        plugin.setActive(false);
+                    plugin.setArtist(artist);
+                    plugin.setTitle(title);
+                } else {
+                    plugin.setActive(false);
 
-                        plugin.setTitle("");
-                        plugin.setArtist("");
-                    }
+                    plugin.setTitle("");
+                    plugin.setArtist("");
                 }
+            } else {
+                plugin.setActive(false);
+
+                plugin.setTitle("");
+                plugin.setArtist("");
             }
         }
     }

@@ -9,7 +9,7 @@
  * Licence: https://creativecommons.org/licenses/by-sa/3.0/
  */
 
-package com.arkazeen.DiscordLastFMScrobbler.tools;
+package com.sabihismail.DiscordLastFMScrobbler.tools;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

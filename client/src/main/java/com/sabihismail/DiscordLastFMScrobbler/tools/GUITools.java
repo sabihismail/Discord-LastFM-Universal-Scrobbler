@@ -1,4 +1,4 @@
-package com.arkazeen.DiscordLastFMScrobbler.tools;
+package com.sabihismail.DiscordLastFMScrobbler.tools;
 
 import javax.swing.*;
 import java.awt.*;

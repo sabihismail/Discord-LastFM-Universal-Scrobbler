@@ -1,13 +1,14 @@
-package com.arkazeen.DiscordLastFMScrobbler.connection;
+package com.sabihismail.DiscordLastFMScrobbler.connection;
 
-import com.arkazeen.DiscordLastFMScrobbler.discord.Discord;
-import com.arkazeen.DiscordLastFMScrobbler.lastFM.LastFM;
-import com.arkazeen.DiscordLastFMScrobbler.lastFM.LastFMManager;
-import com.arkazeen.DiscordLastFMScrobbler.listener.PluginManager;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Constants;
-import com.arkazeen.DiscordLastFMScrobbler.tools.GUITools;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Logging;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Settings;
+import com.sabihismail.DiscordLastFMScrobbler.discord.Discord;
+import com.sabihismail.DiscordLastFMScrobbler.lastFM.LastFM;
+import com.sabihismail.DiscordLastFMScrobbler.lastFM.LastFMManager;
+import com.sabihismail.DiscordLastFMScrobbler.discord.DiscordSocket;
+import com.sabihismail.DiscordLastFMScrobbler.listener.PluginManager;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Constants;
+import com.sabihismail.DiscordLastFMScrobbler.tools.GUITools;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Settings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -136,7 +137,7 @@ public class Main extends Application {
         lblSongInfo.setTextAlignment(TextAlignment.CENTER);
         lblSongInfo.setWrapText(true);
 
-        Label lblSong = new Label(LastFM.getFormattedTrack(SETTINGS.getLastFMName()));
+        Label lblSong = new Label();
         lblSong.setFont(Font.font("Calibri", FontWeight.BOLD, 22));
         lblSong.setTextAlignment(TextAlignment.CENTER);
         lblSong.setWrapText(true);
@@ -381,7 +382,7 @@ public class Main extends Application {
 
     /**
      * Shutdowns all components of the program upon stopping all {@link Timer} and disconnecting the websocket from
-     * {@link com.arkazeen.DiscordLastFMScrobbler.discord.DiscordSocket}.
+     * {@link DiscordSocket}.
      */
     public static void shutdown() {
         if (PLUGIN_MANAGER != null) {
@@ -415,7 +416,7 @@ public class Main extends Application {
      *
      * @param args Unused arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         launch(args);
     }
 }

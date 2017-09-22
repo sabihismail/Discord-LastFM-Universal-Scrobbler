@@ -1,8 +1,8 @@
-package com.arkazeen.DiscordLastFMScrobbler.listener;
+package com.sabihismail.DiscordLastFMScrobbler.listener;
 
-import com.arkazeen.DiscordLastFMScrobbler.tools.Constants;
-import com.arkazeen.DiscordLastFMScrobbler.tools.GUITools;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Tools;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Constants;
+import com.sabihismail.DiscordLastFMScrobbler.tools.GUITools;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Tools;
 import javafx.beans.property.*;
 import org.json.JSONException;
 import org.json.JSONObject;

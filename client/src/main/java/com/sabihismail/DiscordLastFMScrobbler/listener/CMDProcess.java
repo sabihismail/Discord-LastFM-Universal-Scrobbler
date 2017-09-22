@@ -1,4 +1,4 @@
-package com.arkazeen.DiscordLastFMScrobbler.listener;
+package com.sabihismail.DiscordLastFMScrobbler.listener;
 
 /**
  * This class is dedicated to storing data about a certain active process.

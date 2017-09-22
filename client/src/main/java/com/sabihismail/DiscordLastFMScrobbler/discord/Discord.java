@@ -1,8 +1,8 @@
-package com.arkazeen.DiscordLastFMScrobbler.discord;
+package com.sabihismail.DiscordLastFMScrobbler.discord;
 
-import com.arkazeen.DiscordLastFMScrobbler.connection.Main;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Constants;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.connection.Main;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Constants;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Logging;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 
 /**
  * This class manages the connection to Discord servers and verifies if the user's inputted token is valid.
- *
+ * <p>
  * The Discord API connection is done through the WebSocket {@link DiscordSocket}.
  *
  * @since 1.0
@@ -41,20 +41,8 @@ public class Discord {
 
     private DiscordSocket discordSocket;
 
-    /**
-     * Creates a {@link DiscordSocket} connection using the server gateway endpoint retrieved from
-     * {@link #getGateway()}.
-     *
-     * This method is blocking.
-     */
     public Discord() {
-        try {
-            discordSocket = new DiscordSocket(new URI(getGateway()), Main.SETTINGS.getToken());
-
-            discordSocket.connectBlocking();
-        } catch (URISyntaxException | InterruptedException e) {
-            Logging.logError(new String[]{getGateway(), String.valueOf(validDiscordToken(Main.SETTINGS.getToken()))});
-        }
+        createSocket();
     }
 
     /**
@@ -119,6 +107,22 @@ public class Discord {
         }
 
         return false;
+    }
+
+    /**
+     * Creates a {@link DiscordSocket} connection using the server gateway endpoint retrieved from
+     * {@link #getGateway()}.
+     * <p>
+     * This method is blocking.
+     */
+    public void createSocket() {
+        try {
+            discordSocket = new DiscordSocket(new URI(getGateway()), Main.SETTINGS.getToken());
+
+            discordSocket.connectBlocking();
+        } catch (URISyntaxException | InterruptedException e) {
+            Logging.logError(new String[]{getGateway(), String.valueOf(validDiscordToken(Main.SETTINGS.getToken()))});
+        }
     }
 
     public DiscordSocket getDiscordSocket() {

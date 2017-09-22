@@ -1,7 +1,7 @@
-package com.arkazeen.DiscordLastFMScrobbler.lastFM;
+package com.sabihismail.DiscordLastFMScrobbler.lastFM;
 
-import com.arkazeen.DiscordLastFMScrobbler.tools.Logging;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Tools;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Tools;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -61,8 +61,8 @@ public class LastFM {
     /**
      * Last.FM API key and secret.
      */
-    public static final String LAST_FM_API_KEY = "";
-    public static final String LAST_FM_API_SECRET = "";
+    private static final String LAST_FM_API_KEY = "";
+    private static final String LAST_FM_API_SECRET = "";
 
     /**
      * The desired format of the {@link Track} data when it is converted into a {@link String}.
@@ -90,6 +90,10 @@ public class LastFM {
         }
 
         String json = Tools.readURL(fullURL);
+        if (json.equals("")) {
+            return null;
+        }
+
         JSONObject obj = new JSONObject(json).getJSONObject("track");
 
         artist = obj.getJSONObject("artist").getString("name");
@@ -147,6 +151,10 @@ public class LastFM {
      * @return The formatted {@link String} that matches the format {@link #TEXT_FORMAT}.
      */
     public static String getFormattedTrack(Track track) {
+        if (track == null) {
+            return null;
+        }
+
         Pattern p = Pattern.compile("\\{(.*?)}");
         Matcher m = p.matcher(TEXT_FORMAT);
 
@@ -206,16 +214,18 @@ public class LastFM {
      *
      * @param artist     The artist of the track.
      * @param title      The title of the track.
+     * @param album      The album of the track. May be null if the {@link Track} was null.
      * @param timeStamp  The time since Unix epoch in seconds when the song started.
-     * @param sessionKey The session key of the specific user.
-     * @return Returns true if the request was successful and if the song has been scrobbled successfully.
+     * @param sessionKey The session key of the specific user.   @return Returns true if the request was successful and if the song has been scrobbled successfully.
      * @throws JSONException Throws any errors in JSON parsing.
      * @throws IOException   Throws any errors relating to connecting or reading the URL.
      */
-    public static boolean scrobble(String artist, String title, int timeStamp, String sessionKey) throws JSONException, IOException {
+    public static boolean scrobble(String artist, String title, String album, int timeStamp, String sessionKey)
+            throws JSONException, IOException {
         Map<String, String> params = new HashMap<>();
         params.put("artist", artist);
         params.put("track", title);
+        params.put("album", album);
         params.put("timestamp", Integer.toString(timeStamp));
         params.put("api_key", LAST_FM_API_KEY);
         params.put("sk", sessionKey);
@@ -230,6 +240,7 @@ public class LastFM {
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         nameValuePairs.add(new BasicNameValuePair("artist", artist));
         nameValuePairs.add(new BasicNameValuePair("track", title));
+        nameValuePairs.add(new BasicNameValuePair("album", album));
         nameValuePairs.add(new BasicNameValuePair("timestamp", Integer.toString(timeStamp)));
         nameValuePairs.add(new BasicNameValuePair("api_key", LAST_FM_API_KEY));
         nameValuePairs.add(new BasicNameValuePair("api_sig", md5Signature));
@@ -259,9 +270,8 @@ public class LastFM {
      * @param sessionKey The session key of that specific user.
      * @return Returns true if the operation was successful.
      * @throws JSONException Throws any errors in JSON parsing.
-     * @throws IOException   Throws any errors relating to connecting or reading the URL.
      */
-    public static boolean updateNowPlaying(String artist, String title, String sessionKey) throws JSONException, IOException {
+    public static boolean updateNowPlaying(String artist, String title, String sessionKey) throws JSONException {
         Map<String, String> params = new HashMap<>();
         params.put("artist", artist);
         params.put("track", title);
@@ -282,12 +292,17 @@ public class LastFM {
         nameValuePairs.add(new BasicNameValuePair("api_sig", md5Signature));
         nameValuePairs.add(new BasicNameValuePair("sk", sessionKey));
 
-        httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        String responseXML;
+        try {
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-        HttpResponse httpResponse = httpClient.execute(httpPost);
+            HttpResponse httpResponse = httpClient.execute(httpPost);
 
-        String responseXML = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
-        EntityUtils.consume(httpPost.getEntity());
+            responseXML = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+            EntityUtils.consume(httpPost.getEntity());
+        } catch (IOException e) {
+            return false;
+        }
 
         JSONObject xmlToJSON = XML.toJSONObject(responseXML);
 

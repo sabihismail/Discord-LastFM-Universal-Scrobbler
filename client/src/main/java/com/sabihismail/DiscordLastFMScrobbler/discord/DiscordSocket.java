@@ -1,7 +1,8 @@
-package com.arkazeen.DiscordLastFMScrobbler.discord;
+package com.sabihismail.DiscordLastFMScrobbler.discord;
 
-import com.arkazeen.DiscordLastFMScrobbler.tools.Constants;
-import com.arkazeen.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Constants;
+import com.sabihismail.DiscordLastFMScrobbler.tools.Logging;
+import com.sabihismail.DiscordLastFMScrobbler.lastFM.LastFM;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
@@ -22,7 +23,7 @@ import java.util.TimerTask;
  * Information can also be sent to Discord's servers. In this case, active music updates are sent to Discord's servers
  * which allow for Discord to update the user's active Game status. This will display a status under the user's name
  * similar to 'Playing {{Active Music}}'. The format of music updates is currently set to
- * {@link com.arkazeen.DiscordLastFMScrobbler.lastFM.LastFM#TEXT_FORMAT}.
+ * {@link LastFM#TEXT_FORMAT}.
  *
  * @since 1.0
  */
@@ -204,7 +205,7 @@ public class DiscordSocket extends WebSocketClient {
      * Update user's game status when song changes. Also sends 'idle_since' variable set to {@link JSONObject#NULL}
      * which lets Discord know that the client was never idle.
      *
-     * @param name Song title and name retrieved from {@link com.arkazeen.DiscordLastFMScrobbler.lastFM.LastFM};
+     * @param name Song title and name retrieved from {@link LastFM};
      */
     public void setGame(String name) {
         JSONObject game = new JSONObject();

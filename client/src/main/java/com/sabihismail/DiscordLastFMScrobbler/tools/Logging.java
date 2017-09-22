@@ -1,4 +1,4 @@
-package com.arkazeen.DiscordLastFMScrobbler.tools;
+package com.sabihismail.DiscordLastFMScrobbler.tools;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class Logging {
      * @param msg The text that is to be logged.
      */
     public static void log(String msg) {
-        msg = "\n" + Tools.getFormattedTime() + msg;
+        msg = Tools.getFormattedTime() + msg;
 
         try {
             File f = new File(LOGGING_FILE_NAME);

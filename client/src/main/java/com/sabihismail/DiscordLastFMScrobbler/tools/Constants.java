@@ -1,6 +1,6 @@
-package com.arkazeen.DiscordLastFMScrobbler.tools;
+package com.sabihismail.DiscordLastFMScrobbler.tools;
 
-import com.arkazeen.DiscordLastFMScrobbler.connection.Main;
+import com.sabihismail.DiscordLastFMScrobbler.connection.Main;
 
 /**
  * General program constants that are accessed from multiple classes, for example the name of the program and the

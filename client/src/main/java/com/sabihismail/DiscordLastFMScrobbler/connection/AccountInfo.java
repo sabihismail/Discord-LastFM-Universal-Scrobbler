@@ -1,4 +1,4 @@
-package com.arkazeen.DiscordLastFMScrobbler.connection;
+package com.sabihismail.DiscordLastFMScrobbler.connection;
 
 /**
  * This class's purpose is to contain account information about LastFM and Discord.
