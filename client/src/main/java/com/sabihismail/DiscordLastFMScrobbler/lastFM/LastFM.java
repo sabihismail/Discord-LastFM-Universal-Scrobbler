@@ -80,9 +80,8 @@ public class LastFM {
      * contained in this class.
      */
     public static Track getTrackInformation(String artist, String title) {
-        String fullURL = GET_TRACK_INFO + API_ARTIST_PREFIX + artist + API_TRACK_PREFIX + title + API_KEY_PREFIX +
-                LAST_FM_API_KEY + API_FORMAT;
-        fullURL = Tools.escapeURL(fullURL);
+        String fullURL = GET_TRACK_INFO + API_ARTIST_PREFIX + Tools.escapeURL(artist) + API_TRACK_PREFIX +
+                Tools.escapeURL(title) + API_KEY_PREFIX + LAST_FM_API_KEY + API_FORMAT;
 
         boolean reachable = Tools.checkIfURLIsUp(fullURL);
         if (!reachable) {

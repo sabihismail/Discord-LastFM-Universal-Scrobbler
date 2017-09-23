@@ -9,9 +9,8 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 
@@ -79,10 +78,8 @@ public class Tools {
         String response = "";
 
         try {
-            URL url = new URL(text);
-            URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-            response = uri.toASCIIString();
-        } catch (IOException | URISyntaxException e) {
+            response = URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
             Logging.logError(new String[]{text}, e);
         }
 
