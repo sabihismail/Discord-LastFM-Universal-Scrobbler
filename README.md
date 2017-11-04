@@ -11,13 +11,14 @@ status to show `Playing {{Song}}` instead of a video game as expected.
 ## Getting Started
 There are two methods to use this program. Either you can download the
 source, add your own Last.FM API key and secret, and compile it through
-Maven, OR you can use the included jar file found in the `compiled`
-folder.
+Maven, OR you can use the included jar file found in the
+[releases section](https://github.com/sabihismail/Discord-LastFM-Universal-Scrobbler/releases/latest).
 
 #### No Compile (skip to `Manually Compile` for manual setup)
 
-Download the JAR file from the `compiled` folder. This uses my own
-Last.FM API key and secret.
+Download the JAR file from the 
+[releases section](https://github.com/sabihismail/Discord-LastFM-Universal-Scrobbler/releases/latest).
+This uses my own Last.FM API key and secret.
 
 #### Manually Compile 
 
