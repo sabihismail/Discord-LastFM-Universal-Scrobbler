@@ -1,9 +1,10 @@
 package com.sabihismail.DiscordLastFMScrobbler.connection;
 
 import com.sabihismail.DiscordLastFMScrobbler.discord.Discord;
+import com.sabihismail.DiscordLastFMScrobbler.discord.DiscordRichPresense;
+import com.sabihismail.DiscordLastFMScrobbler.discord.DiscordSocket;
 import com.sabihismail.DiscordLastFMScrobbler.lastFM.LastFM;
 import com.sabihismail.DiscordLastFMScrobbler.lastFM.LastFMManager;
-import com.sabihismail.DiscordLastFMScrobbler.discord.DiscordSocket;
 import com.sabihismail.DiscordLastFMScrobbler.listener.PluginManager;
 import com.sabihismail.DiscordLastFMScrobbler.tools.Constants;
 import com.sabihismail.DiscordLastFMScrobbler.tools.GUITools;
@@ -47,6 +48,7 @@ public class Main extends Application {
 
     public static Settings SETTINGS;
     public static Discord DISCORD;
+    public static DiscordRichPresense DISCORD_RICH_PRESENSE;
     public static PluginManager PLUGIN_MANAGER;
     public static LastFMManager LAST_FM_MANAGER;
 
@@ -82,6 +84,10 @@ public class Main extends Application {
         SETTINGS.setToken(accountInfo.getDiscordToken());
         SETTINGS.saveSettings();
 
+        if (SETTINGS.isRichPresenseEnabled()) {
+            DISCORD_RICH_PRESENSE = new DiscordRichPresense();
+        }
+
         if (SETTINGS.isDiscordConnectionEnabled()) {
             DISCORD = new Discord();
         }
@@ -108,7 +114,9 @@ public class Main extends Application {
         lblBotEnabled.setFont(new Font("Calibri", 38));
         lblBotEnabled.setWrapText(true);
 
-        String enabledComponentsText = "Discord Presence Update " +
+        String enabledComponentsText = "Discord " +
+                (SETTINGS.isRichPresenseEnabled() ? "Rich " : "") +
+                "Presence Update " +
                 (SETTINGS.isDiscordConnectionEnabled() ? "enabled" : "disabled") + ".\n" +
                 "Last.FM Scrobbling " + (SETTINGS.isScrobblingEnabled() ? "enabled" : "disabled") + ".";
         Label lblComponentsEnabled = new Label(enabledComponentsText);
@@ -202,9 +210,41 @@ public class Main extends Application {
         lastFMPasswordField.setText(SETTINGS.getLastFMPassword());
         TextField tokenField = new TextField(SETTINGS.getToken());
 
-        CheckBox enableDiscordConnect = new CheckBox("Enable Discord Connect");
+        CheckBox enableDiscordConnect = new CheckBox("Enable Regular Discord Connection");
+        CheckBox enableRichPresence = new CheckBox("Enable Discord Rich Presence");
+
         enableDiscordConnect.setAllowIndeterminate(false);
+        enableDiscordConnect.setOnMouseClicked(e -> {
+            if (enableDiscordConnect.isSelected()) {
+                enableRichPresence.setSelected(false);
+                lastFMNameField.setDisable(false);
+                lastFMPasswordField.setDisable(false);
+                tokenField.setEditable(true);
+            } else {
+                enableRichPresence.setSelected(true);
+                lastFMNameField.setDisable(true);
+                lastFMPasswordField.setDisable(true);
+                tokenField.setEditable(false);
+            }
+        });
         enableDiscordConnect.setSelected(SETTINGS.isDiscordConnectionEnabled());
+
+        enableRichPresence.setAllowIndeterminate(false);
+        enableRichPresence.setOnMouseClicked(e -> {
+            if (enableRichPresence.isSelected()) {
+                enableDiscordConnect.setSelected(false);
+                lastFMNameField.setDisable(true);
+                lastFMPasswordField.setDisable(true);
+                tokenField.setEditable(false);
+            } else {
+                enableDiscordConnect.setSelected(true);
+                lastFMNameField.setDisable(false);
+                lastFMPasswordField.setDisable(false);
+                tokenField.setEditable(true);
+            }
+        });
+        enableRichPresence.setSelected(SETTINGS.isRichPresenseEnabled());
+        enableRichPresence.getOnMouseClicked().handle(null);
 
         CheckBox enableScrobbling = new CheckBox("Enable Last.FM Scrobbling");
         enableScrobbling.setAllowIndeterminate(false);
@@ -213,6 +253,7 @@ public class Main extends Application {
         Button btnSave = new Button("Save");
         btnSave.setOnAction(ex -> {
             SETTINGS.setDiscordConnectionEnabled(enableDiscordConnect.isSelected());
+            SETTINGS.setRichPresenseEnabled(enableRichPresence.isSelected());
             SETTINGS.setScrobblingEnabled(enableScrobbling.isSelected());
 
             AccountInfo savedAccountInfo = verificationOfExistingFiles(lastFMNameField.getText(),
@@ -235,6 +276,7 @@ public class Main extends Application {
         Button btnReset = new Button("Reset");
         btnReset.setOnAction(ex -> {
             enableDiscordConnect.setSelected(SETTINGS.isDiscordConnectionEnabled());
+            enableRichPresence.setSelected(SETTINGS.isRichPresenseEnabled());
             enableScrobbling.setSelected(SETTINGS.isScrobblingEnabled());
             lastFMNameField.setText(SETTINGS.getLastFMName());
             lastFMPasswordField.setText(SETTINGS.getLastFMPassword());
@@ -257,7 +299,8 @@ public class Main extends Application {
 
         VBox allLayouts = new VBox();
         allLayouts.setSpacing(spacingBetweenLayouts);
-        allLayouts.getChildren().addAll(lastFMLayout, tokenLayout, enableDiscordConnect, enableScrobbling);
+        allLayouts.getChildren().addAll(lastFMLayout, tokenLayout, enableDiscordConnect, enableRichPresence,
+                enableScrobbling);
 
         BorderPane buttonLayout = new BorderPane();
         buttonLayout.setLeft(btnCancel);
@@ -313,24 +356,34 @@ public class Main extends Application {
             } catch (JSONException | IOException e) {
                 lastFMName = GUITools.showOnTopInputDialog("Please enter a valid Last.FM username.");
                 lastFMPassword = GUITools.showPasswordInputDialog("Last.FM Password", "Please enter a valid Last.FM password.");
+
+                if (lastFMName.equals("") || lastFMPassword.equals("")) {
+                    close();
+                }
             }
         }
 
         if (SETTINGS.isDiscordConnectionEnabled()) {
             boolean loggedIn = false;
             while (!loggedIn) {
-                token = token.replace(" ", "");
+                if (token != null) {
+                    token = token.replace(" ", "");
 
-                if (token.startsWith("\"")) {
-                    token = token.substring(1);
+                    if (token.startsWith("\"")) {
+                        token = token.substring(1);
+                    }
+
+                    if (token.endsWith("\"")) {
+                        token = token.substring(0, token.length() - 1);
+                    }
                 }
 
-                if (token.endsWith("\"")) {
-                    token = token.substring(0, token.length() - 1);
-                }
+                if (token == null || !token.equalsIgnoreCase("SKIP")) {
+                    boolean success = false;
 
-                if (!token.equalsIgnoreCase("SKIP")) {
-                    boolean success = Discord.validDiscordToken(token);
+                    if (token != null) {
+                        success = Discord.validDiscordToken(token);
+                    }
 
                     if (!success) {
                         token = GUITools.showOnTopInputDialog("Your Discord token is not set!\n" +
@@ -350,6 +403,7 @@ public class Main extends Application {
                     }
                 } else if (token.equalsIgnoreCase("SKIP")) {
                     SETTINGS.setDiscordConnectionEnabled(false);
+                    SETTINGS.setRichPresenseEnabled(false);
                     SETTINGS.saveSettings();
 
                     loggedIn = true;
@@ -358,6 +412,14 @@ public class Main extends Application {
         }
 
         return accountInfo;
+    }
+
+    /**
+     * Notifies user that the program will close.
+     */
+    public static void close() {
+        JOptionPane.showMessageDialog(null, "The program will now close.");
+        System.exit(0);
     }
 
     /**
@@ -388,6 +450,10 @@ public class Main extends Application {
         if (PLUGIN_MANAGER != null) {
             PLUGIN_MANAGER.getExecutorMusicUpdate().shutdownNow();
             PLUGIN_MANAGER.getExecutorProcessesUpdate().shutdownNow();
+        }
+
+        if (DISCORD_RICH_PRESENSE != null) {
+            DISCORD_RICH_PRESENSE.shutdown();
         }
 
         if (DISCORD != null) {

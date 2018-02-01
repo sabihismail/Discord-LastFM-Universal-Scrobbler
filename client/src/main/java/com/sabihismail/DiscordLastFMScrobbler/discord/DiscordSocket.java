@@ -64,6 +64,7 @@ public class DiscordSocket extends WebSocketClient {
     public DiscordSocket(URI serverUri, String token) {
         super(serverUri);
         this.token = token;
+        this.setConnectionLostTimeout(10000);
 
         try {
             setSocket(SSLSocketFactory.getDefault().createSocket(serverUri.getHost(), 443));
@@ -175,14 +176,7 @@ public class DiscordSocket extends WebSocketClient {
             int dif = (int) ((System.currentTimeMillis() - heartbeatSentTime) / 1000);
 
             if (dif > SESSION_TIMEOUT_SECONDS) {
-                closeConnection(CloseFrame.ABNORMAL_CLOSE, "Discord did not respond with heartbeat! " +
-                        "Attempting to reconnect...");
-
-                try {
-                    connectBlocking();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                closeConnection(CloseFrame.ABNORMAL_CLOSE, "Discord did not respond with heartbeat!");
             }
         }
     }
@@ -210,10 +204,13 @@ public class DiscordSocket extends WebSocketClient {
     public void setGame(String name) {
         JSONObject game = new JSONObject();
         game.put("name", name.length() > MAX_STATUS_LENGTH ? name.substring(0, MAX_STATUS_LENGTH - 1) : name);
+        game.put("type", 1);
 
         JSONObject d = new JSONObject();
-        d.put("idle_since", JSONObject.NULL);
         d.put("game", game);
+        d.put("since", 0);
+        d.put("status", "online");
+        d.put("afk", false);
 
         JSONObject obj = new JSONObject();
         obj.put("op", 3);

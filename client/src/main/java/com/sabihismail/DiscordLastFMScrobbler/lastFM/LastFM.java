@@ -61,8 +61,8 @@ public class LastFM {
     /**
      * Last.FM API key and secret.
      */
-    private static final String LAST_FM_API_KEY = "";
-    private static final String LAST_FM_API_SECRET = "";
+    private static final String LAST_FM_API_KEY = "e931d11abce57e671e321a8c532744d5";
+    private static final String LAST_FM_API_SECRET = "ec947e5c589c18e8cdb1a40d2892e1af";
 
     /**
      * The desired format of the {@link Track} data when it is converted into a {@link String}.
@@ -172,6 +172,8 @@ public class LastFM {
             m.appendReplacement(sb, replacement);
         }
         m.appendTail(sb);
+
+        System.out.println(sb.toString());
 
         return sb.toString();
     }
@@ -455,6 +457,17 @@ public class LastFM {
 
         public List<String> getTags() {
             return tags;
+        }
+
+        @Override
+        public String toString() {
+            return "Track{" +
+                    "artist='" + artist + '\'' +
+                    ", title='" + title + '\'' +
+                    ", length=" + length +
+                    ", album='" + album + '\'' +
+                    ", tags=" + tags +
+                    '}';
         }
     }
 }
