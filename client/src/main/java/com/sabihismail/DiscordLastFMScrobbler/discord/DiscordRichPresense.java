@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
  *
  * @since 1.1
  */
+// TODO: rename class, presence is spelt wrong
 public class DiscordRichPresense {
 	private static final long APPLICATION_CLIENT_ID = 0L;
 	
