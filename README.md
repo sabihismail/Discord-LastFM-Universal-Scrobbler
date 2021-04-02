@@ -30,7 +30,7 @@ does not break any rules stated by Last.FM. The same goes for Discord
 if you plan on using more Discord API functionalities.
 
 Paste the key and secret in the class
-`com.arkazeen.DiscordLastFMScrobbler.LastFM` for the variables
+`com.sabihismail.DiscordLastFMScrobbler.LastFM` for the variables
 `LAST_FM_API_KEY` and `LAST_FM_API_SECRET`.
 
 To compile the jar with dependencies using Maven, execute
